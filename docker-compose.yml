@@ -1,0 +1,29 @@
+  version: "3.9"
+
+  services:
+    db:
+      image: postgres:15
+      container_name: subs_db
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: +Sanly2025@+
+        POSTGRES_DB: subsdb
+      ports:
+        - "5432:5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+
+    api:
+      build: .
+      container_name: subs
+      ports:
+        - "7777:7777"
+      environment:
+        PORT: 7777
+        POSTGRES_URI: postgres://postgres:+Sanly2025@+@subs_db:5432/subsdb?sslmode=disable
+        DISABLE_AUTO_MIGRATION: "false"
+      depends_on:
+        - db
+
+  volumes:
+    pgdata:
