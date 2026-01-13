@@ -15,7 +15,7 @@ func InitSubscriptionRouter(server *cmd.Server) {
 	subsRouter := server.Echo.Group("/api/subs")
 	subsRouter.GET("/list", subsHandler.List)
 	subsRouter.POST("", subsHandler.Create)
-	subsRouter.GET("total", subsHandler.TotalCost)
+	subsRouter.GET("/total", subsHandler.TotalCost)
 	subsRouter.GET("/:id", subsHandler.Get)
 	subsRouter.PUT("/:id", subsHandler.Update)
 	subsRouter.DELETE("/:id", subsHandler.Delete)

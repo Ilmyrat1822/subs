@@ -3,15 +3,20 @@ definitions:
   dtos.CreateSubscriptionRequest:
     properties:
       end_date:
+        example: 12-2025
         type: string
       price:
+        example: 400
         minimum: 0
         type: integer
       service_name:
+        example: Yandex Plus
         type: string
       start_date:
+        example: 07-2025
         type: string
       user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
         type: string
     required:
     - price
@@ -22,46 +27,62 @@ definitions:
   dtos.ErrorResponse:
     properties:
       error:
+        example: Invalid request
         type: string
     type: object
   dtos.TotalCostResponse:
     properties:
       count:
+        example: 3
         type: integer
       period:
+        example: 01-2025 to 12-2025
         type: string
       total_cost:
+        example: 1200
         type: integer
     type: object
   dtos.UpdateSubscriptionRequest:
     properties:
       end_date:
+        example: 12-2025
         type: string
       price:
+        example: 400
         type: integer
       service_name:
+        example: Yandex Plus
         type: string
       start_date:
+        example: 07-2025
         type: string
     type: object
   models.Subscription:
     properties:
       created_at:
+        example: "2025-01-12T10:00:00Z"
         type: string
       end_date:
+        example: 12-2025
         type: string
       id:
+        example: 1
         type: integer
       price:
+        example: 400
         minimum: 0
         type: integer
       service_name:
+        example: Yandex Plus
         type: string
       start_date:
+        example: 07-2025
         type: string
       updated_at:
+        example: "2025-01-12T10:00:00Z"
         type: string
       user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
         type: string
     required:
     - price

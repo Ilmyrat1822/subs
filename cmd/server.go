@@ -68,7 +68,10 @@ func EnsureDBExists(dsn string) error {
 
 	// Create database if not exists
 	err = db.Exec(fmt.Sprintf("CREATE DATABASE \"%s\";", dbName)).Error
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
+	if err != nil {
+		if strings.Contains(err.Error(), "SQLSTATE 42P04") {
+			return nil
+		}
 		return fmt.Errorf("failed to create database: %w", err)
 	}
 

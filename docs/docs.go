@@ -307,20 +307,25 @@ const docTemplate = `{
             ],
             "properties": {
                 "end_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "12-2025"
                 },
                 "price": {
                     "type": "integer",
-                    "minimum": 0
+                    "minimum": 0,
+                    "example": 400
                 },
                 "service_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Yandex Plus"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "07-2025"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "60601fee-2bf1-4721-ae6f-7636e79a0cba"
                 }
             }
         },
@@ -328,7 +333,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Invalid request"
                 }
             }
         },
@@ -336,13 +342,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "count": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 3
                 },
                 "period": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "01-2025 to 12-2025"
                 },
                 "total_cost": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1200
                 }
             }
         },
@@ -350,16 +359,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "end_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "12-2025"
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 400
                 },
                 "service_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Yandex Plus"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "07-2025"
                 }
             }
         },
@@ -373,29 +386,37 @@ const docTemplate = `{
             ],
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-12T10:00:00Z"
                 },
                 "end_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "12-2025"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "price": {
                     "type": "integer",
-                    "minimum": 0
+                    "minimum": 0,
+                    "example": 400
                 },
                 "service_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Yandex Plus"
                 },
                 "start_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "07-2025"
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-01-12T10:00:00Z"
                 },
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "60601fee-2bf1-4721-ae6f-7636e79a0cba"
                 }
             }
         }

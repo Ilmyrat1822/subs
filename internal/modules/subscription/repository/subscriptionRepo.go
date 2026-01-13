@@ -51,28 +51,26 @@ func (r *SubscriptionRepository) List(userID, serviceName string) ([]models.Subs
 	return subs, err
 }
 
-func (r *SubscriptionRepository) CalculateTotalCost(
+func (r *SubscriptionRepository) GetForPeriod(
 	startDate, endDate, userID, serviceName string,
-) (int, int, error) {
+) ([]models.Subscription, error) {
 
-	type result struct {
-		Total int
-		Count int
-	}
-
-	var res result
+	var subs []models.Subscription
 
 	query := r.db.Model(&models.Subscription{}).
-		Select("COALESCE(SUM(price),0) as total, COUNT(*) as count").
-		Where("start_date <= ? AND (end_date IS NULL OR end_date >= ?)", endDate, startDate)
+		Where(
+			"start_date <= ? AND (end_date IS NULL OR end_date >= ?)",
+			endDate, startDate,
+		)
 
 	if userID != "" {
 		query = query.Where("user_id = ?", userID)
 	}
+
 	if serviceName != "" {
 		query = query.Where("service_name ILIKE ?", "%"+serviceName+"%")
 	}
 
-	err := query.Scan(&res).Error
-	return res.Total, res.Count, err
+	err := query.Find(&subs).Error
+	return subs, err
 }
