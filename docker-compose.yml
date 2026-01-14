@@ -1,29 +1,35 @@
-  version: "3.9"
+version: "3.9"
 
-  services:
-    db:
-      image: postgres:15
-      container_name: subs_db
-      environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: +Sanly2025@+
-        POSTGRES_DB: subsdb
-      ports:
-        - "5432:5432"
-      volumes:
-        - pgdata:/var/lib/postgresql/data
+services:
+  db:
+    image: postgres:15
+    container_name: subs_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: subsdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-    api:
-      build: .
-      container_name: subs
-      ports:
-        - "7777:7777"
-      environment:
-        PORT: 7777
-        POSTGRES_URI: postgres://postgres:+Sanly2025@+@subs_db:5432/subsdb?sslmode=disable
-        DISABLE_AUTO_MIGRATION: "false"
-      depends_on:
-        - db
-
-  volumes:
-    pgdata:
+  api:
+    build: .
+    container_name: subs
+    ports:
+      - "7777:7777"
+    environment:
+      PORT: 7777
+      POSTGRES_URI: postgres://postgres:password@subs_db:5432/subsdb?sslmode=disable
+      DISABLE_AUTO_MIGRATION: "false"
+    depends_on:
+      db:
+        condition: service_healthy 
+    restart: on-failure  
+volumes:
+  pgdata:
