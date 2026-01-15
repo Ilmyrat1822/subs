@@ -35,8 +35,38 @@ func (s *SubscriptionService) Get(id int) (*models.Subscription, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *SubscriptionService) List(userID, serviceName string) ([]models.Subscription, error) {
-	return s.repo.List(userID, serviceName)
+const (
+	defaultLimit = 20
+	maxLimit     = 100
+)
+
+func (s *SubscriptionService) List(
+	userID, serviceName string,
+	limit, offset int,
+) ([]models.Subscription, *dtos.PaginationMeta, error) {
+
+	if limit <= 0 {
+		limit = defaultLimit
+	}
+	if limit > maxLimit {
+		limit = maxLimit
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	subs, total, err := s.repo.List(userID, serviceName, limit, offset)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	meta := &dtos.PaginationMeta{
+		Limit:  limit,
+		Offset: offset,
+		Total:  int(total),
+	}
+
+	return subs, meta, nil
 }
 
 func (s *SubscriptionService) Update(id int, req dtos.UpdateSubscriptionRequest) (*models.Subscription, error) {

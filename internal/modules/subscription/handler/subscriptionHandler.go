@@ -72,24 +72,29 @@ func (h *SubscriptionHandler) Get(c echo.Context) error {
 
 // ListSubscriptions godoc
 // @Summary List subscriptions
-// @Description List all subscriptions with optional filters
 // @Tags subscriptions
 // @Produce json
 // @Param user_id query string false "User ID (UUID)"
 // @Param service_name query string false "Service name"
-// @Success 200 {array} models.Subscription
-// @Failure 500 {object} dtos.ErrorResponse
-// @Router /api/subs/list [get]
+// @Param limit query int false "Limit (default 20, max 100)"
+// @Param offset query int false "Offset"
+// @Success 200 {object} map[string]interface{}
 func (h *SubscriptionHandler) List(c echo.Context) error {
 	userID := c.QueryParam("user_id")
 	serviceName := c.QueryParam("service_name")
 
-	subs, err := h.service.List(userID, serviceName)
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	subs, meta, err := h.service.List(userID, serviceName, limit, offset)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dtos.ErrorResponse{Error: err.Error()})
 	}
 
-	return c.JSON(http.StatusOK, subs)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": subs,
+		"meta": meta,
+	})
 }
 
 // UpdateSubscription godoc

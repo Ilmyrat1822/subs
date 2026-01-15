@@ -35,8 +35,13 @@ func (r *SubscriptionRepository) Delete(id int) error {
 	return r.db.Delete(&models.Subscription{}, id).Error
 }
 
-func (r *SubscriptionRepository) List(userID, serviceName string) ([]models.Subscription, error) {
+func (r *SubscriptionRepository) List(
+	userID, serviceName string,
+	limit, offset int,
+) ([]models.Subscription, int64, error) {
+
 	var subs []models.Subscription
+	var total int64
 
 	query := r.db.Model(&models.Subscription{})
 
@@ -47,8 +52,18 @@ func (r *SubscriptionRepository) List(userID, serviceName string) ([]models.Subs
 		query = query.Where("service_name ILIKE ?", "%"+serviceName+"%")
 	}
 
-	err := query.Order("created_at DESC").Find(&subs).Error
-	return subs, err
+	// count before limit
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	err := query.
+		Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&subs).Error
+
+	return subs, total, err
 }
 
 func (r *SubscriptionRepository) GetForPeriod(

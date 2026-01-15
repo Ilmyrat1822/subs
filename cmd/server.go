@@ -30,7 +30,7 @@ func NewServer() *Server {
 	}
 
 	// Connect to the database
-	db, err := database.Connect(cfg.PostgresUri, cfg.DisableAutoMigration)
+	db, err := database.Connect(cfg.PostgresUri)
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
