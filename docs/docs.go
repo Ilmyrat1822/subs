@@ -300,15 +300,11 @@ const docTemplate = `{
             "properties": {
                 "count": {
                     "type": "integer",
-                    "example": 3
+                    "format": "int64"
                 },
-                "period": {
-                    "type": "string",
-                    "example": "01-2025 to 12-2025"
-                },
-                "total_cost": {
+                "total": {
                     "type": "integer",
-                    "example": 1200
+                    "format": "int64"
                 }
             }
         },

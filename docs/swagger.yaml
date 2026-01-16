@@ -33,13 +33,10 @@ definitions:
   dtos.TotalCostResponse:
     properties:
       count:
-        example: 3
+        format: int64
         type: integer
-      period:
-        example: 01-2025 to 12-2025
-        type: string
-      total_cost:
-        example: 1200
+      total:
+        format: int64
         type: integer
     type: object
   dtos.UpdateSubscriptionRequest:

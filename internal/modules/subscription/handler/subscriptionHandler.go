@@ -124,6 +124,9 @@ func (h *SubscriptionHandler) Update(c echo.Context) error {
 
 	sub, err := h.service.Update(id, req)
 	if err != nil {
+		if err.Error() == "subscription not found" {
+			return c.JSON(http.StatusNotFound, dtos.ErrorResponse{Error: err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, dtos.ErrorResponse{Error: err.Error()})
 	}
 

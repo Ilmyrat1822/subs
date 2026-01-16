@@ -4,15 +4,16 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/Ilmyrat1822/subs/internal/models"
+	"github.com/Ilmyrat1822/subs/internal/modules/subscription/dtos"
 )
 
 type SubscriptionRepository interface {
 	Create(sub *models.Subscription) error
 	GetByID(id int) (*models.Subscription, error)
-	Update(sub *models.Subscription) error
+	Update(sub *models.Subscription) (bool, error)
 	Delete(id int) (bool, error)
 	List(userID, serviceName string, limit, offset int) ([]models.Subscription, int64, error)
-	GetTotalCost(startDate, endDate, userID, serviceName string) (*TotalAggResult, error)
+	GetTotalCost(startDate, endDate, userID, serviceName string) (*dtos.TotalCostResponse, error)
 }
 type subscriptionRepository struct {
 	db *gorm.DB
@@ -35,8 +36,18 @@ func (r *subscriptionRepository) GetByID(id int) (*models.Subscription, error) {
 	return &sub, nil
 }
 
-func (r *subscriptionRepository) Update(sub *models.Subscription) error {
-	return r.db.Save(sub).Error
+func (r *subscriptionRepository) Update(sub *models.Subscription) (bool, error) {
+	result := r.db.Save(sub)
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (r *subscriptionRepository) Delete(id int) (bool, error) {
@@ -86,28 +97,28 @@ type TotalAggResult struct {
 	Count int64
 }
 
-func (r *subscriptionRepository) GetTotalCost(startDate, endDate, userID, serviceName string) (*TotalAggResult, error) {
+func (r *subscriptionRepository) GetTotalCost(startDate, endDate, userID, serviceName string) (*dtos.TotalCostResponse, error) {
+	var result dtos.TotalCostResponse
 
-	var res TotalAggResult
-
-	q := r.db.
-		Model(&models.Subscription{}).
-		Select(`
-			COALESCE(SUM(price), 0) AS total,
-			COUNT(*) AS count
-		`).
-		Where("start_date >= ? AND start_date <= ?", startDate, endDate)
+	query := r.db.Model(&models.Subscription{}).
+		Select("COALESCE(SUM(price), 0) AS total, COUNT(*) AS count").
+		Where(
+			"start_date <= ? AND (end_date IS NULL OR end_date >= ?)",
+			endDate, startDate,
+		)
 
 	if userID != "" {
-		q = q.Where("user_id = ?", userID)
-	}
-	if serviceName != "" {
-		q = q.Where("service_name = ?", serviceName)
+		query = query.Where("user_id = ?", userID)
 	}
 
-	if err := q.Scan(&res).Error; err != nil {
+	if serviceName != "" {
+		query = query.Where("service_name ILIKE ?", "%"+serviceName+"%")
+	}
+
+	err := query.Scan(&result).Error
+	if err != nil {
 		return nil, err
 	}
 
-	return &res, nil
+	return &result, nil
 }

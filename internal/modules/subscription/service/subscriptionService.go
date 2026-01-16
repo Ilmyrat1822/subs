@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Ilmyrat1822/subs/internal/models"
 	"github.com/Ilmyrat1822/subs/internal/modules/subscription/dtos"
@@ -108,8 +109,17 @@ func (s *subscriptionService) Update(id int, req dtos.UpdateSubscriptionRequest)
 	if req.EndDate != nil {
 		sub.EndDate = req.EndDate
 	}
+	updated, err := s.repo.Update(sub)
+	if err != nil {
+		return nil, err
+	}
 
-	return sub, s.repo.Update(sub)
+	if !updated {
+		return nil, fmt.Errorf("subscription not found")
+	}
+
+	return sub, nil
+
 }
 
 var ErrSubscriptionNotFound = errors.New("subscription not found")
@@ -126,17 +136,22 @@ func (s *subscriptionService) Delete(id int) error {
 }
 
 func (s *subscriptionService) GetTotalCost(startDate, endDate, userID, serviceName string) (*dtos.TotalCostResponse, error) {
+	if startDate == "" || endDate == "" {
+		return nil, fmt.Errorf("start_date and end_date are required")
+	}
 
-	agg, err := s.repo.GetTotalCost(
-		startDate, endDate, userID, serviceName,
+	result, err := s.repo.GetTotalCost(
+		startDate,
+		endDate,
+		userID,
+		serviceName,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dtos.TotalCostResponse{
-		TotalCost: int(agg.Total),
-		Count:     int(agg.Count),
-		Period:    startDate + " to " + endDate,
+		Total: int64(result.Total),
+		Count: int64(result.Count),
 	}, nil
 }
