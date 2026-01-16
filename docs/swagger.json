@@ -55,49 +55,6 @@
                 }
             }
         },
-        "/api/subs/list": {
-            "get": {
-                "description": "List all subscriptions with optional filters",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "subscriptions"
-                ],
-                "summary": "List subscriptions",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID (UUID)",
-                        "name": "user_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Service name",
-                        "name": "service_name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Subscription"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dtos.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/subs/total": {
             "get": {
                 "description": "Calculate total cost of subscriptions for a period",
@@ -372,45 +329,30 @@
         },
         "models.Subscription": {
             "type": "object",
-            "required": [
-                "price",
-                "service_name",
-                "start_date",
-                "user_id"
-            ],
             "properties": {
-                "created_at": {
-                    "type": "string",
-                    "example": "2025-01-12T10:00:00Z"
+                "createdAt": {
+                    "type": "string"
                 },
-                "end_date": {
-                    "type": "string",
-                    "example": "12-2025"
+                "endDate": {
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string"
                 },
                 "price": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 400
+                    "type": "integer"
                 },
-                "service_name": {
-                    "type": "string",
-                    "example": "Yandex Plus"
+                "serviceName": {
+                    "type": "string"
                 },
-                "start_date": {
-                    "type": "string",
-                    "example": "07-2025"
+                "startDate": {
+                    "type": "string"
                 },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2025-01-12T10:00:00Z"
+                "updatedAt": {
+                    "type": "string"
                 },
-                "user_id": {
-                    "type": "string",
-                    "example": "60601fee-2bf1-4721-ae6f-7636e79a0cba"
+                "userID": {
+                    "type": "string"
                 }
             }
         }

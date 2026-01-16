@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -11,10 +12,10 @@ import (
 )
 
 type SubscriptionHandler struct {
-	service *service.SubscriptionService
+	service service.SubscriptionService
 }
 
-func NewSubscriptionHandler(service *service.SubscriptionService) *SubscriptionHandler {
+func NewSubscriptionHandler(service service.SubscriptionService) *SubscriptionHandler {
 	return &SubscriptionHandler{service: service}
 }
 
@@ -141,11 +142,21 @@ func (h *SubscriptionHandler) Update(c echo.Context) error {
 func (h *SubscriptionHandler) Delete(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, dtos.ErrorResponse{Error: "invalid id"})
+		return c.JSON(http.StatusBadRequest, dtos.ErrorResponse{
+			Error: "invalid id",
+		})
 	}
 
-	if err := h.service.Delete(id); err != nil {
-		return c.JSON(http.StatusNotFound, dtos.ErrorResponse{Error: err.Error()})
+	err = h.service.Delete(id)
+	if err != nil {
+		if errors.Is(err, service.ErrSubscriptionNotFound) {
+			return c.JSON(http.StatusNotFound, dtos.ErrorResponse{
+				Error: err.Error(),
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, dtos.ErrorResponse{
+			Error: err.Error(),
+		})
 	}
 
 	return c.NoContent(http.StatusNoContent)
@@ -174,12 +185,7 @@ func (h *SubscriptionHandler) TotalCost(c echo.Context) error {
 		})
 	}
 
-	resp, err := h.service.GetTotalCost(
-		startDate,
-		endDate,
-		c.QueryParam("user_id"),
-		c.QueryParam("service_name"),
-	)
+	resp, err := h.service.GetTotalCost(startDate, endDate, c.QueryParam("user_id"), c.QueryParam("service_name"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dtos.ErrorResponse{Error: err.Error()})
 	}

@@ -6,19 +6,27 @@ import (
 	"github.com/Ilmyrat1822/subs/internal/models"
 )
 
-type SubscriptionRepository struct {
+type SubscriptionRepository interface {
+	Create(sub *models.Subscription) error
+	GetByID(id int) (*models.Subscription, error)
+	Update(sub *models.Subscription) error
+	Delete(id int) (bool, error)
+	List(userID, serviceName string, limit, offset int) ([]models.Subscription, int64, error)
+	GetTotalCost(startDate, endDate, userID, serviceName string) (*TotalAggResult, error)
+}
+type subscriptionRepository struct {
 	db *gorm.DB
 }
 
-func NewSubscriptionRepository(db *gorm.DB) *SubscriptionRepository {
-	return &SubscriptionRepository{db: db}
+func NewSubscriptionRepository(db *gorm.DB) SubscriptionRepository {
+	return &subscriptionRepository{db: db}
 }
 
-func (r *SubscriptionRepository) Create(sub *models.Subscription) error {
+func (r *subscriptionRepository) Create(sub *models.Subscription) error {
 	return r.db.Create(sub).Error
 }
 
-func (r *SubscriptionRepository) GetByID(id int) (*models.Subscription, error) {
+func (r *subscriptionRepository) GetByID(id int) (*models.Subscription, error) {
 	var sub models.Subscription
 	err := r.db.First(&sub, id).Error
 	if err != nil {
@@ -27,18 +35,25 @@ func (r *SubscriptionRepository) GetByID(id int) (*models.Subscription, error) {
 	return &sub, nil
 }
 
-func (r *SubscriptionRepository) Update(sub *models.Subscription) error {
+func (r *subscriptionRepository) Update(sub *models.Subscription) error {
 	return r.db.Save(sub).Error
 }
 
-func (r *SubscriptionRepository) Delete(id int) error {
-	return r.db.Delete(&models.Subscription{}, id).Error
+func (r *subscriptionRepository) Delete(id int) (bool, error) {
+	res := r.db.Delete(&models.Subscription{}, id)
+
+	if res.Error != nil {
+		return false, res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
-func (r *SubscriptionRepository) List(
-	userID, serviceName string,
-	limit, offset int,
-) ([]models.Subscription, int64, error) {
+func (r *subscriptionRepository) List(userID, serviceName string, limit, offset int) ([]models.Subscription, int64, error) {
 
 	var subs []models.Subscription
 	var total int64
@@ -66,26 +81,33 @@ func (r *SubscriptionRepository) List(
 	return subs, total, err
 }
 
-func (r *SubscriptionRepository) GetForPeriod(
-	startDate, endDate, userID, serviceName string,
-) ([]models.Subscription, error) {
+type TotalAggResult struct {
+	Total int64
+	Count int64
+}
 
-	var subs []models.Subscription
+func (r *subscriptionRepository) GetTotalCost(startDate, endDate, userID, serviceName string) (*TotalAggResult, error) {
 
-	query := r.db.Model(&models.Subscription{}).
-		Where(
-			"start_date <= ? AND (end_date IS NULL OR end_date >= ?)",
-			endDate, startDate,
-		)
+	var res TotalAggResult
+
+	q := r.db.
+		Model(&models.Subscription{}).
+		Select(`
+			COALESCE(SUM(price), 0) AS total,
+			COUNT(*) AS count
+		`).
+		Where("start_date >= ? AND start_date <= ?", startDate, endDate)
 
 	if userID != "" {
-		query = query.Where("user_id = ?", userID)
+		q = q.Where("user_id = ?", userID)
 	}
-
 	if serviceName != "" {
-		query = query.Where("service_name ILIKE ?", "%"+serviceName+"%")
+		q = q.Where("service_name = ?", serviceName)
 	}
 
-	err := query.Find(&subs).Error
-	return subs, err
+	if err := q.Scan(&res).Error; err != nil {
+		return nil, err
+	}
+
+	return &res, nil
 }

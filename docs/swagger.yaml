@@ -59,36 +59,22 @@ definitions:
     type: object
   models.Subscription:
     properties:
-      created_at:
-        example: "2025-01-12T10:00:00Z"
+      createdAt:
         type: string
-      end_date:
-        example: 12-2025
+      endDate:
         type: string
       id:
-        example: 1
-        type: integer
+        type: string
       price:
-        example: 400
-        minimum: 0
         type: integer
-      service_name:
-        example: Yandex Plus
+      serviceName:
         type: string
-      start_date:
-        example: 07-2025
+      startDate:
         type: string
-      updated_at:
-        example: "2025-01-12T10:00:00Z"
+      updatedAt:
         type: string
-      user_id:
-        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+      userID:
         type: string
-    required:
-    - price
-    - service_name
-    - start_date
-    - user_id
     type: object
 host: localhost:7777
 info:
@@ -212,34 +198,6 @@ paths:
           schema:
             $ref: '#/definitions/dtos.ErrorResponse'
       summary: Update subscription
-      tags:
-      - subscriptions
-  /api/subs/list:
-    get:
-      description: List all subscriptions with optional filters
-      parameters:
-      - description: User ID (UUID)
-        in: query
-        name: user_id
-        type: string
-      - description: Service name
-        in: query
-        name: service_name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Subscription'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dtos.ErrorResponse'
-      summary: List subscriptions
       tags:
       - subscriptions
   /api/subs/total:
